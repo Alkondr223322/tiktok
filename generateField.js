@@ -4,7 +4,7 @@ const field = document.querySelector('.field');
 
 function generateCols(row, colsCount, rowId) {
   for (let i = 0; i < colsCount; i++) {
-    const id = rowId * 3 + i;
+    const id = rowId * COLS_COUNT + i;
     const col = document.createElement('div');
     col.id = `c-${id}`;
     col.dataset.id = id;
