@@ -17,8 +17,8 @@ function getField(){
 		let arrRow = [];
 		for(let j=0; j < COLS_COUNT; j++){
 			let curCell = document.getElementById(`c-${curid}`);
-			console.log(curCell);
-			console.log(curid);
+			// console.log(curCell);
+			// console.log(curid);
 			if(curCell.classList.contains('ch')) arrRow[j] = 'x';
 			else if(curCell.classList.contains('r')) arrRow[j] = 'o';
 			else arrRow[j] = 'e';
@@ -33,8 +33,10 @@ function getField(){
 }
 function findWinner(arrField){
 	let str = '';
+	let draw = true;
 	for(let i=0; i<arrField.length; i++){
 		checkUp(arrField[i].join(''));
+		if(arrField[i].includes('e')) draw = false;
 	}
 	for (var i = 0; i < arrField[0].length; i++) {
 		str='';
@@ -48,7 +50,6 @@ function findWinner(arrField){
 		if(i+2>arrField.length-1) break;
 		for(let j=0; j<arrField[0].length; j++){
 			if(j+2<arrField[0].length){
-				console.log(1);
 				str=arrField[i][j]+arrField[i+1][j+1]+arrField[i+2][j+2];
 				checkUp(str);
 			}else if(j-2>-1){
@@ -57,7 +58,7 @@ function findWinner(arrField){
 			}
 		}
 	}
-
+	if(draw && document.querySelector('.won-message').innerHTML.length==0)declareWinner('draw');
 }
 function checkUp(str){
 	let regCh = new RegExp(/xxx/g);
@@ -69,5 +70,8 @@ function checkUp(str){
 	}
 }
 function declareWinner(winner){
-	(winner == 'x') ? alert('Crosses won') : alert('Rounds won');
+	console.log(winner);
+	if(winner=='draw') document.querySelector('.won-message').innerHTML = 'It\'s a draw!';
+	document.querySelector('.won-message').innerHTML = (winner == 'x') ? 'Crosses won' : 'Rounds won';
+	document.querySelector('.won-title').classList.remove("hidden");
 }
