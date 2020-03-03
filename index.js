@@ -1,77 +1,86 @@
 let bool = 1;
- field.onclick = function(event){
+field.onclick = function(event){
 	let target = event.target;
 	// console.log(target);
 	// console.log(target.classList);
 	// console.log(target.classList.contains('cell'));
 	if(target.classList.contains('cell')){
 		(bool) ? target.classList.add("ch") : target.classList.add("r");
+		(bool) ? checkField(target, 'ch') : checkField(target, 'r');
 		bool = !bool;
-		getField();
 	}
 }
-function getField(){
-	let arrField = [];
-	let curid = 0;
-	for(let i=0; i<ROWS_COUNT; i++){
-		let arrRow = [];
-		for(let j=0; j < COLS_COUNT; j++){
-			let curCell = document.getElementById(`c-${curid}`);
-			// console.log(curCell);
-			// console.log(curid);
-			if(curCell.classList.contains('ch')) arrRow[j] = 'x';
-			else if(curCell.classList.contains('r')) arrRow[j] = 'o';
-			else arrRow[j] = 'e';
-			curid++;
-			// console.log(arrRow);
-		}
-		arrField[i] = arrRow;
+function checkField(el, cellClass){
+	id = parseInt(el.getAttribute('data-id'), 10);
+	let fieldobj = document.querySelectorAll('[data-id]');
+	// console.log(fieldobj);
+	// console.log(fieldobj[id].classList.contains('ch'));
+	// console.log(fieldobj[id-COLS_COUNT]);
+	// COLUMS 
+	if(fieldobj[id-COLS_COUNT*2]){
+		if(fieldobj[id-COLS_COUNT].classList.contains(cellClass) && fieldobj[id-COLS_COUNT*2].classList.contains(cellClass)) 
+			declarewinner(cellClass, 'vertical', [fieldobj[id], fieldobj[id-COLS_COUNT], fieldobj[id-COLS_COUNT*2]]);
 	}
-	// console.log(arrField);
-	// console.log(arrField.join());
-	findWinner(arrField);
-}
-function findWinner(arrField){
-	let str = '';
+	if(fieldobj[id+COLS_COUNT*2]){
+		if(fieldobj[id+COLS_COUNT].classList.contains(cellClass) && fieldobj[id+COLS_COUNT*2].classList.contains(cellClass))
+			declarewinner(cellClass, 'vertical', [fieldobj[id], fieldobj[id+COLS_COUNT], fieldobj[id+COLS_COUNT*2]]);
+	}
+	if(fieldobj[id+COLS_COUNT] && fieldobj[id-COLS_COUNT]){
+		if(fieldobj[id-COLS_COUNT].classList.contains(cellClass) && fieldobj[id+COLS_COUNT].classList.contains(cellClass))
+			declarewinner(cellClass, 'vertical', [fieldobj[id], fieldobj[id+COLS_COUNT], fieldobj[id-COLS_COUNT]]);
+	}
+	// ROWS
+	if(id%ROWS_COUNT>1){
+		if(fieldobj[id-1].classList.contains(cellClass) && fieldobj[id-2].classList.contains(cellClass))
+			declarewinner(cellClass, 'horizontal', [fieldobj[id], fieldobj[id-1], fieldobj[id-2]]);
+	}
+	if(id%ROWS_COUNT<COLS_COUNT-2){
+		if(fieldobj[id+1].classList.contains(cellClass) && fieldobj[id+2].classList.contains(cellClass))
+			declarewinner(cellClass, 'horizontal', [fieldobj[id], fieldobj[id+1], fieldobj[id+2]]);
+	}
+	if(id%ROWS_COUNT>0 && id%ROWS_COUNT<COLS_COUNT-1){
+		if(fieldobj[id-1].classList.contains(cellClass) && fieldobj[id+1].classList.contains(cellClass))
+			declarewinner(cellClass, 'horizontal', [fieldobj[id], fieldobj[id-1], fieldobj[id+1]]);
+	}
+	//LEFT DIAGONAL
+	if(fieldobj[id-COLS_COUNT*2-2]){
+		if(fieldobj[id-COLS_COUNT-1].classList.contains(cellClass) && fieldobj[id-COLS_COUNT*2-2].classList.contains(cellClass)) 
+			declarewinner(cellClass, 'diagonal-left', [fieldobj[id], fieldobj[id-COLS_COUNT-1], fieldobj[id-COLS_COUNT*2-2]]);
+	}
+	if(fieldobj[id+COLS_COUNT*2+2]){
+		if(fieldobj[id+COLS_COUNT+1].classList.contains(cellClass) && fieldobj[id+COLS_COUNT*2+2].classList.contains(cellClass))
+			declarewinner(cellClass, 'diagonal-left', [fieldobj[id], fieldobj[id+COLS_COUNT+1], fieldobj[id+COLS_COUNT*2+2]]);
+	}
+	if(fieldobj[id-COLS_COUNT-1] && fieldobj[id+COLS_COUNT+1]){
+		if(fieldobj[id-COLS_COUNT-1].classList.contains(cellClass) && fieldobj[id+COLS_COUNT+1].classList.contains(cellClass)) 
+			declarewinner(cellClass, 'diagonal-left', [fieldobj[id], fieldobj[id-COLS_COUNT-1], fieldobj[id+COLS_COUNT+1]]);
+	}
+	//RIGHT DIAGONAL
+	if(fieldobj[id-COLS_COUNT*2+2]){
+		if(fieldobj[id-COLS_COUNT+1].classList.contains(cellClass) && fieldobj[id-COLS_COUNT*2+2].classList.contains(cellClass))
+			declarewinner(cellClass, 'diagonal-right', [fieldobj[id], fieldobj[id-COLS_COUNT+1], fieldobj[id-COLS_COUNT*2+2]]);
+	}
+	if(fieldobj[id+COLS_COUNT*2-2]){
+		if(fieldobj[id+COLS_COUNT-1].classList.contains(cellClass) && fieldobj[id+COLS_COUNT*2-2].classList.contains(cellClass))
+			declarewinner(cellClass, 'diagonal-right', [fieldobj[id], fieldobj[id+COLS_COUNT-1], fieldobj[id+COLS_COUNT*2-2]]);
+	}
+	if(fieldobj[id-COLS_COUNT+1] && fieldobj[id+COLS_COUNT-1]){
+		if(fieldobj[id-COLS_COUNT+1].classList.contains(cellClass) && fieldobj[id+COLS_COUNT-1].classList.contains(cellClass)) 
+			declarewinner(cellClass, 'diagonal-right', [fieldobj[id], fieldobj[id-COLS_COUNT+1], fieldobj[id+COLS_COUNT-1]]);
+	}
+	//CHECK IF DRAW
 	let draw = true;
-	for(let i=0; i<arrField.length; i++){
-		checkUp(arrField[i].join(''));
-		if(arrField[i].includes('e')) draw = false;
+	for(let i=0; i<fieldobj.length; i++){
+		if(!fieldobj[i].classList.contains('ch') && !fieldobj[i].classList.contains('r')) draw=false;
 	}
-	for (var i = 0; i < arrField[0].length; i++) {
-		str='';
-		for(let j = 0; j<arrField.length; j++){
-			str+=arrField[j][i];
-		}
-		checkUp(str);
-	}
-	for(let i=0; i<arrField.length; i++){
-		str=''
-		if(i+2>arrField.length-1) break;
-		for(let j=0; j<arrField[0].length; j++){
-			if(j+2<arrField[0].length){
-				str=arrField[i][j]+arrField[i+1][j+1]+arrField[i+2][j+2];
-				checkUp(str);
-			}else if(j-2>-1){
-				str=arrField[i][j]+arrField[i+1][j-1]+arrField[i+2][j-2];
-				checkUp(str);
-			}
-		}
-	}
-	if(draw && document.querySelector('.won-message').innerHTML.length==0)declareWinner('draw');
+	if(draw && document.querySelector('.won-message').innerHTML.length==0) declarewinner('draw', '', '');
 }
-function checkUp(str){
-	let regCh = new RegExp(/xxx/g);
-	let regR = new RegExp(/ooo/g);
-	if(regCh.test(str)){
-		declareWinner('x');
-	}else if(regR.test(str)){
-		declareWinner('o');
-	}
-}
-function declareWinner(winner){
-	console.log(winner);
-	if(winner=='draw') document.querySelector('.won-message').innerHTML = 'It\'s a draw!';
-	document.querySelector('.won-message').innerHTML = (winner == 'x') ? 'Crosses won' : 'Rounds won';
+function declarewinner(cellClass, vector, cells){
+	if(cellClass=='draw') document.querySelector('.won-message').innerHTML = 'It\'s a draw!';
+	document.querySelector('.won-message').innerHTML = (cellClass == 'ch') ? 'Crosses won' : 'Rounds won';
 	document.querySelector('.won-title').classList.remove("hidden");
+	for(let i=0; i<cells.length; i++){
+		cells[i].classList.add(vector);
+		console.log(cells[i])
+	}
 }
