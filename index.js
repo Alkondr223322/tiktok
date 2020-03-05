@@ -89,6 +89,7 @@ function checkField(el, cellClass) {
             winCells.push(fieldobj[i]);
         }
         declarewinner(cellClass, 'vertical', winCells);
+        return;
     }
     // ROWS
     win = true;
@@ -102,6 +103,7 @@ function checkField(el, cellClass) {
             winCells.push(fieldobj[i + ROWS_COUNT * row]);
         }
         declarewinner(cellClass, 'horizontal', winCells);
+        return;
     }
     //RIGHT DIAGONAL
     if (row == col) {
@@ -115,6 +117,7 @@ function checkField(el, cellClass) {
                 winCells.push(fieldobj[i]);
             }
             declarewinner(cellClass, 'diagonal-right', winCells);
+            return;
         }
     }
     //LEFT DIAGONAL
@@ -128,6 +131,7 @@ function checkField(el, cellClass) {
                 winCells.push(fieldobj[i]);
             }
         declarewinner(cellClass, 'diagonal-left', winCells);
+        return;
     }
     //CHECK IF DRAW
     for (let i = 0; i < fieldobj.length; i++) {
