@@ -2,6 +2,7 @@ let fieldobj = document.querySelectorAll('[data-id]');
 let storage = localStorage;
 // storage.setItem('moves', '');
 // storage.setItem('move', '0');
+// storage.setItem('undoneMoves', '');
 window.onload = function(){
 	if(storage.getItem('moves')){
 		document.querySelector('.undo-btn').disabled = false;
@@ -9,9 +10,12 @@ window.onload = function(){
 		for(let i=1; i<arrOfMoves.length; i++){
 			doMove(arrOfMoves[i]);
 		}
+		if(storage.getItem('undoneMoves').length!=0) document.querySelector('.redo-btn').disabled = false;
 	}else{
 		storage.setItem('current', '1');
 		storage.setItem('move', '0');
+		storage.setItem('moves', '');
+		storage.setItem('undoneMoves', '');
 	}
 }
 field.onclick = function(event) {
@@ -20,7 +24,6 @@ field.onclick = function(event) {
     if (target.classList.contains('cell')) {
     	document.querySelector('.redo-btn').disabled = true;
     	document.querySelector('.undo-btn').disabled = false;
-    			console.log(document.querySelector('.undo-btn'));
         (bool) ? target.classList.add("ch"): target.classList.add("r");
         (bool) ? checkField(target, 'ch'): checkField(target, 'r');
         (bool) ? storage.setItem('current', 0) :  storage.setItem('current', 1);
@@ -40,18 +43,30 @@ document.querySelector('.restart-btn').onclick = function(){
 document.querySelector('.undo-btn').onclick = function(){
 	document.querySelector('.redo-btn').disabled = false;
 	let arrOfMoves = storage.getItem('moves').split(' ');
-	console.log(storage.getItem('move'));
-	console.log(arrOfMoves);
+	// console.log(storage.getItem('move'));
+	// console.log(arrOfMoves);
 	unDoMove(arrOfMoves[storage.getItem('move')]);
 	storage.setItem('move', +storage.getItem('move')-1);
-	arrOfMoves.pop();
+	storage.setItem('undoneMoves', storage.getItem('undoneMoves') + ` ${arrOfMoves.pop()}`);
 	storage.setItem('moves', arrOfMoves.join(' '));
+	// console.log(storage.getItem('moves'));
+	// console.log(storage.getItem('undoneMoves'));
+	(+storage.getItem('current')) ? storage.setItem('current', 0) :  storage.setItem('current', 1);
 	if(storage.getItem('move') == 0){
 		document.querySelector('.undo-btn').disabled=true;
 	}
 }
 document.querySelector('.redo-btn').onclick = function(){
-
+	console.log(storage.getItem('undoneMoves').split(' '));
+	console.log(storage.getItem('moves').split(' '));
+	(+storage.getItem('current')) ? storage.setItem('current', 0) :  storage.setItem('current', 1);
+	arrOfUndoneMoves = storage.getItem('undoneMoves').split(' ');
+	storage.setItem('move', +storage.getItem('move')+1);
+	storage.setItem('moves', storage.getItem('moves') + ` ${arrOfUndoneMoves[arrOfUndoneMoves.length-1]}`);
+	doMove(arrOfUndoneMoves[arrOfUndoneMoves.length-1]);
+	arrOfUndoneMoves.pop();
+	storage.setItem('undoneMoves', arrOfUndoneMoves.join(' '));
+	if(storage.getItem('undoneMoves').length==0) document.querySelector('.redo-btn').disabled = true;
 }
 function checkField(el, cellClass) {
     let id = parseInt(el.getAttribute('data-id'), 10);
@@ -60,11 +75,7 @@ function checkField(el, cellClass) {
     let winCells = [];
     storage.setItem('moves', storage.getItem('moves')+` ${id},${cellClass}`);
 	storage.setItem('move', +storage.getItem('move')+1);
-	//CHECK IF DRAW
-    for (let i = 0; i < fieldobj.length; i++) {
-        if (!fieldobj[i].classList.contains('ch') && !fieldobj[i].classList.contains('r')) draw = false;
-    }
-    if (draw) declarewinner('draw', '', '');
+	storage.setItem('undoneMoves', '');
     // COLUMN
     let col = id % ROWS_COUNT;
     for (let i = col; i < fieldobj.length; i += COLS_COUNT) {
@@ -112,14 +123,22 @@ function checkField(el, cellClass) {
             }
         declarewinner(cellClass, 'diagonal-left', winCells);
     }
+    //CHECK IF DRAW
+    for (let i = 0; i < fieldobj.length; i++) {
+        if (!fieldobj[i].classList.contains('ch') && !fieldobj[i].classList.contains('r')) draw = false;
+    }
+    if (draw && document.querySelector('.won-message').innerHTML.length==0) declarewinner('draw', '', '');
 }
 
 function declarewinner(cellClass, vector, cells) {
+	console.log(cellClass);
 	document.querySelector('.redo-btn').disabled = true;
 	document.querySelector('.undo-btn').disabled = true;
-    if (cellClass == 'draw') document.querySelector('.won-message').innerHTML = 'It\'s a draw!';
+	document.querySelector('.won-title').classList.remove("hidden");
+    if (cellClass == 'draw'){ 
+    	document.querySelector('.won-message').innerHTML = 'It\'s a draw!'; 
+    	return;}
     document.querySelector('.won-message').innerHTML = (cellClass == 'ch') ? 'Crosses won' : 'Rounds won';
-    document.querySelector('.won-title').classList.remove("hidden");
     for (let i = 0; i < cells.length; i++) {
         cells[i].classList.add('win');
         cells[i].classList.add(vector);
