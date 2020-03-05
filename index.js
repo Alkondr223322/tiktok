@@ -1,28 +1,33 @@
 let fieldobj = document.querySelectorAll('[data-id]');
 let storage = localStorage;
-let move=0;	
 // storage.setItem('moves', '');
+// storage.setItem('move', '0');
 window.onload = function(){
 	if(storage.getItem('moves')){
+		document.querySelector('.undo-btn').disabled = false;
 		let arrOfMoves = storage.getItem('moves').split(' ');
 		for(let i=1; i<arrOfMoves.length; i++){
-			let arr = arrOfMoves[i].split(',');
-			doMove(arr[0], arr[1])
+			doMove(arrOfMoves[i]);
 		}
 	}else{
 		storage.setItem('current', '1');
+		storage.setItem('move', '0');
 	}
 }
 field.onclick = function(event) {
 	let bool = +storage.getItem('current');
     let target = event.target;
     if (target.classList.contains('cell')) {
+    	document.querySelector('.redo-btn').disabled = true;
+    	document.querySelector('.undo-btn').disabled = false;
+    			console.log(document.querySelector('.undo-btn'));
         (bool) ? target.classList.add("ch"): target.classList.add("r");
         (bool) ? checkField(target, 'ch'): checkField(target, 'r');
         (bool) ? storage.setItem('current', 0) :  storage.setItem('current', 1);
     }
 }
 document.querySelector('.restart-btn').onclick = function(){
+	storage.setItem('move', '0');
 	storage.removeItem('moves');
 	storage.setItem('current', 1);	
 	document.querySelector('.won-title').classList.add("hidden");
@@ -32,17 +37,34 @@ document.querySelector('.restart-btn').onclick = function(){
 		fieldobj[i].classList.add('cell')
 	}
 } 
+document.querySelector('.undo-btn').onclick = function(){
+	document.querySelector('.redo-btn').disabled = false;
+	let arrOfMoves = storage.getItem('moves').split(' ');
+	console.log(storage.getItem('move'));
+	console.log(arrOfMoves);
+	unDoMove(arrOfMoves[storage.getItem('move')]);
+	storage.setItem('move', +storage.getItem('move')-1);
+	arrOfMoves.pop();
+	storage.setItem('moves', arrOfMoves.join(' '));
+	if(storage.getItem('move') == 0){
+		document.querySelector('.undo-btn').disabled=true;
+	}
+}
+document.querySelector('.redo-btn').onclick = function(){
+
+}
 function checkField(el, cellClass) {
     let id = parseInt(el.getAttribute('data-id'), 10);
     let win = true;
     let draw = true;
     let winCells = [];
     storage.setItem('moves', storage.getItem('moves')+` ${id},${cellClass}`);
-	move++;
-	console.log(storage.getItem('moves').split(' '));
-    // console.log(fieldobj);
-    // console.log(fieldobj[id].classList.contains('ch'));
-    // console.log(fieldobj[id-COLS_COUNT]);
+	storage.setItem('move', +storage.getItem('move')+1);
+	//CHECK IF DRAW
+    for (let i = 0; i < fieldobj.length; i++) {
+        if (!fieldobj[i].classList.contains('ch') && !fieldobj[i].classList.contains('r')) draw = false;
+    }
+    if (draw) declarewinner('draw', '', '');
     // COLUMN
     let col = id % ROWS_COUNT;
     for (let i = col; i < fieldobj.length; i += COLS_COUNT) {
@@ -90,14 +112,11 @@ function checkField(el, cellClass) {
             }
         declarewinner(cellClass, 'diagonal-left', winCells);
     }
-    //CHECK IF DRAW
-    for (let i = 0; i < fieldobj.length; i++) {
-        if (!fieldobj[i].classList.contains('ch') && !fieldobj[i].classList.contains('r')) draw = false;
-    }
-    if (draw && document.querySelector('.won-message').innerHTML.length == 0) declarewinner('draw', '', '');
 }
 
 function declarewinner(cellClass, vector, cells) {
+	document.querySelector('.redo-btn').disabled = true;
+	document.querySelector('.undo-btn').disabled = true;
     if (cellClass == 'draw') document.querySelector('.won-message').innerHTML = 'It\'s a draw!';
     document.querySelector('.won-message').innerHTML = (cellClass == 'ch') ? 'Crosses won' : 'Rounds won';
     document.querySelector('.won-title').classList.remove("hidden");
@@ -106,9 +125,13 @@ function declarewinner(cellClass, vector, cells) {
         cells[i].classList.add(vector);
     }
 }
-function doMove(id, cellClass){
+function doMove(move){
+	let id = move.split(',')[0];
+	let cellClass = move.split(',')[1];
 	document.querySelector(`#c-${id}`).classList.add(cellClass);
 }
-function unDoMove(id, cellClass){
+function unDoMove(move){
+	let id = move.split(',')[0];
+	let cellClass = move.split(',')[1];
 	document.querySelector(`#c-${id}`).classList.remove(cellClass);
 }
