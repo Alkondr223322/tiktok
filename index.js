@@ -1,5 +1,6 @@
 let fieldobj = document.querySelectorAll('[data-id]');
 let storage = localStorage;
+//CLEAR EVERYTHING
 // storage.setItem('moves', '');
 // storage.setItem('move', '0');
 // storage.setItem('undoneMoves', '');
@@ -57,8 +58,9 @@ document.querySelector('.undo-btn').onclick = function(){
 	}
 }
 document.querySelector('.redo-btn').onclick = function(){
-	console.log(storage.getItem('undoneMoves').split(' '));
-	console.log(storage.getItem('moves').split(' '));
+	// console.log(storage.getItem('undoneMoves').split(' '));
+	// console.log(storage.getItem('moves').split(' '));
+	document.querySelector('.undo-btn').disabled=false;
 	(+storage.getItem('current')) ? storage.setItem('current', 0) :  storage.setItem('current', 1);
 	arrOfUndoneMoves = storage.getItem('undoneMoves').split(' ');
 	storage.setItem('move', +storage.getItem('move')+1);
@@ -66,6 +68,7 @@ document.querySelector('.redo-btn').onclick = function(){
 	doMove(arrOfUndoneMoves[arrOfUndoneMoves.length-1]);
 	arrOfUndoneMoves.pop();
 	storage.setItem('undoneMoves', arrOfUndoneMoves.join(' '));
+	console.log(storage.getItem('move'));
 	if(storage.getItem('undoneMoves').length==0) document.querySelector('.redo-btn').disabled = true;
 }
 function checkField(el, cellClass) {
@@ -89,6 +92,7 @@ function checkField(el, cellClass) {
     }
     // ROWS
     win = true;
+    winCells=[]
     let row = Math.floor(id / COLS_COUNT);
     for (let i = 0; i < COLS_COUNT; i++) {
         if (!fieldobj[i + ROWS_COUNT * row].classList.contains(cellClass)) win = false;
@@ -102,6 +106,7 @@ function checkField(el, cellClass) {
     //RIGHT DIAGONAL
     if (row == col) {
         win = true;
+        winCells=[]
         for (let i = 0; i < fieldobj.length; i += COLS_COUNT + 1) {
             if (!fieldobj[i].classList.contains(cellClass)) win = false;
         }
@@ -114,6 +119,7 @@ function checkField(el, cellClass) {
     }
     //LEFT DIAGONAL
     win=true;
+    winCells=[]
     for(let i = COLS_COUNT-1; i < fieldobj.length-COLS_COUNT+1; i+=COLS_COUNT-1){
     	if (!fieldobj[i].classList.contains(cellClass)) win = false;
     }
