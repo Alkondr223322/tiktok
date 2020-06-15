@@ -21,6 +21,7 @@ module.exports = {
     field: false,
     doMove: false,
     unDoMove: false,
-    declarewinner: false,
+    declareWinner: false,
+    storage: false,
   },
 };

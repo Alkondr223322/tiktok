@@ -1,7 +1,7 @@
 // import "./generateField.js";
 // import "./tools.js";
 
-const fieldobj = document.querySelectorAll("[data-id]");
+const listOfCells = document.querySelectorAll("[data-id]");
 const storage = localStorage;
 
 // CLEAR EVERYTHING
@@ -15,14 +15,14 @@ function checkField(id, cellClass) {
   let winCells = [];
   // COLUMN
   const col = id % ROWS_COUNT;
-  for (let i = col; i < fieldobj.length; i += COLS_COUNT) {
-    if (!fieldobj[i].classList.contains(cellClass)) win = false;
+  for (let i = col; i < listOfCells.length; i += COLS_COUNT) {
+    if (!listOfCells[i].classList.contains(cellClass)) win = false;
   }
   if (win) {
-    for (let i = col; i < fieldobj.length; i += COLS_COUNT) {
-      winCells.push(fieldobj[i]);
+    for (let i = col; i < listOfCells.length; i += COLS_COUNT) {
+      winCells.push(listOfCells[i]);
     }
-    declarewinner(cellClass, "vertical", winCells);
+    declareWinner(cellClass, "vertical", winCells);
     return;
   }
   // ROWS
@@ -30,28 +30,28 @@ function checkField(id, cellClass) {
   winCells = [];
   const row = Math.floor(id / COLS_COUNT);
   for (let i = 0; i < COLS_COUNT; i += 1) {
-    if (!fieldobj[i + ROWS_COUNT * row].classList.contains(cellClass))
+    if (!listOfCells[i + ROWS_COUNT * row].classList.contains(cellClass))
       win = false;
   }
   if (win) {
     for (let i = 0; i < COLS_COUNT; i += 1) {
-      winCells.push(fieldobj[i + ROWS_COUNT * row]);
+      winCells.push(listOfCells[i + ROWS_COUNT * row]);
     }
-    declarewinner(cellClass, "horizontal", winCells);
+    declareWinner(cellClass, "horizontal", winCells);
     return;
   }
   // RIGHT DIAGONAL
   if (row === col) {
     win = true;
     winCells = [];
-    for (let i = 0; i < fieldobj.length; i += COLS_COUNT + 1) {
-      if (!fieldobj[i].classList.contains(cellClass)) win = false;
+    for (let i = 0; i < listOfCells.length; i += COLS_COUNT + 1) {
+      if (!listOfCells[i].classList.contains(cellClass)) win = false;
     }
     if (win) {
-      for (let i = 0; i < fieldobj.length; i += COLS_COUNT + 1) {
-        winCells.push(fieldobj[i]);
+      for (let i = 0; i < listOfCells.length; i += COLS_COUNT + 1) {
+        winCells.push(listOfCells[i]);
       }
-      declarewinner(cellClass, "diagonal-right", winCells);
+      declareWinner(cellClass, "diagonal-right", winCells);
       return;
     }
   }
@@ -60,40 +60,40 @@ function checkField(id, cellClass) {
   winCells = [];
   for (
     let i = COLS_COUNT - 1;
-    i < fieldobj.length - COLS_COUNT + 1;
+    i < listOfCells.length - COLS_COUNT + 1;
     i += COLS_COUNT - 1
   ) {
-    if (!fieldobj[i].classList.contains(cellClass)) win = false;
+    if (!listOfCells[i].classList.contains(cellClass)) win = false;
   }
   if (win) {
     for (
       let i = COLS_COUNT - 1;
-      i < fieldobj.length - COLS_COUNT + 1;
+      i < listOfCells.length - COLS_COUNT + 1;
       i += COLS_COUNT - 1
     ) {
-      winCells.push(fieldobj[i]);
+      winCells.push(listOfCells[i]);
     }
-    declarewinner(cellClass, "diagonal-left", winCells);
+    declareWinner(cellClass, "diagonal-left", winCells);
     return;
   }
   // CHECK IF DRAW
-  for (let i = 0; i < fieldobj.length; i += 1) {
+  for (let i = 0; i < listOfCells.length; i += 1) {
     if (
-      !fieldobj[i].classList.contains("ch") &&
-      !fieldobj[i].classList.contains("r")
+      !listOfCells[i].classList.contains("ch") &&
+      !listOfCells[i].classList.contains("r")
     )
       draw = false;
   }
   if (draw && document.querySelector(".won-message").innerHTML.length === 0)
-    declarewinner("draw", "", "");
+    declareWinner("draw", "", "");
 }
 
 function updateData() {
   document.querySelector(".won-title").classList.add("hidden");
   document.querySelector(".won-message").innerHTML = "";
-  for (let i = 0; i < fieldobj.length; i += 1) {
-    fieldobj[i].className = "";
-    fieldobj[i].classList.add("cell");
+  for (let i = 0; i < listOfCells.length; i += 1) {
+    listOfCells[i].className = "";
+    listOfCells[i].classList.add("cell");
   }
   const arrOfMoves = storage.getItem("moves").split(" ");
   for (let i = 1; i < arrOfMoves.length; i += 1) {
@@ -126,6 +126,7 @@ window.onload = function loadWindow() {
   if (+storage.getItem("started")) updateData();
   else {
     storage.setItem("started", "1");
+    storage.setItem("fieldBlocked", "0");
     storage.setItem("currentPlayer", "1");
     storage.setItem("currentMove", "0");
     storage.setItem("moves", "");
@@ -136,6 +137,7 @@ window.onload = function loadWindow() {
 };
 
 field.onclick = function fieldClicked(event) {
+  if (+storage.getItem("fieldBlocked")) return;
   storage.setItem("started", "1");
   const bool = +storage.getItem("currentPlayer");
   const { target } = event;
@@ -163,11 +165,12 @@ document.querySelector(".restart-btn").onclick = function restartClicked() {
   storage.setItem("currentPlayer", "1");
   document.querySelector(".won-title").classList.add("hidden");
   document.querySelector(".won-message").innerHTML = "";
-  for (let i = 0; i < fieldobj.length; i += 1) {
-    fieldobj[i].className = "";
-    fieldobj[i].classList.add("cell");
+  for (let i = 0; i < listOfCells.length; i += 1) {
+    listOfCells[i].className = "";
+    listOfCells[i].classList.add("cell");
   }
   storage.setItem("started", "0");
+  storage.setItem("fieldBlocked", "0");
 };
 
 document.querySelector(".undo-btn").onclick = function undoClicked() {

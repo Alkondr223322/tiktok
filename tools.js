@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-function declarewinner(cellClass, vector, winnerCells) {
+function declareWinner(cellClass, vector, winnerCells) {
   document.querySelector(".redo-btn").disabled = true;
   document.querySelector(".undo-btn").disabled = true;
   document.querySelector(".won-title").classList.remove("hidden");
@@ -13,6 +13,7 @@ function declarewinner(cellClass, vector, winnerCells) {
     winnerCells[i].classList.add("win");
     winnerCells[i].classList.add(vector);
   }
+  storage.setItem("fieldBlocked", "1");
 }
 
 function doMove(move) {
