@@ -9,19 +9,7 @@ module.exports = {
   },
   rules: {
     "prettier/prettier": "error",
-    "no-unused-vars": [
-      "error",
-      { vars: "local", args: "after-used", ignoreRestSiblings: false },
-    ],
   },
   plugins: ["prettier"],
-  globals: {
-    COLS_COUNT: false,
-    ROWS_COUNT: false,
-    field: false,
-    doMove: false,
-    unDoMove: false,
-    declareWinner: false,
-    storage: false,
-  },
+  globals: {},
 };
