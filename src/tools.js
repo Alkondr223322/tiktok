@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 exports.declareWinner = function declareWinner(cellClass, vector, winnerCells) {
   document.querySelector(".redo-btn").disabled = true;
   document.querySelector(".undo-btn").disabled = true;
